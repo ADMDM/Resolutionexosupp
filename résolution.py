@@ -361,6 +361,90 @@ emissions['MAX'] = emissions.loc[:, '1970':].max(axis=1)
 # Affichage du dataframe avec la colonne MAX ajoutée
 print(emissions)
 
+# H 
+import pandas as pd
+import numpy as np
+
+# Chargement des données covid_vaccination.csv
+vaccin = pd.read_csv("covid_vaccination.csv", index_col="country")
+
+# Affichage d'un résumé du dataframe
+print(vaccin.info())
+
+# Affichage des lignes des pays ayant atteint un taux de vaccination supérieur à 5% avec le vaccin "Pfizer/BioNTech"
+pfizer_vaccin = vaccin[vaccin["vaccines"].str.contains("Pfizer/BioNTech")]
+pfizer_vaccin = pfizer_vaccin[pfizer_vaccin["total_vaccinations_per_hundred"] > 5]
+print(pfizer_vaccin)
+
+# Estimation de la population de chaque pays
+vaccin["population"] = (vaccin["total_vaccinations"] * 100) / vaccin["total_vaccinations_per_hundred"]
+
+# Affichage des 5 pays les plus peuplés
+pop_sorted = vaccin.sort_values(by="population", ascending=False)
+print(pop_sorted.head())
+
+# Remplacement de la population aberrante de Singapour
+vaccin.loc["Singapore", "population"] = 5850000
+#%%H2
+# Affichage du nombre de pays par continent
+print(vaccin["continent"].value_counts())
+
+# Définition du nombre total de personnes vaccinées dans le monde
+total_vaccinated = vaccin["total_vaccinations"].sum()
+
+# Calcul du nombre de personnes vaccinées par continent
+vaccinated_by_cont = vaccin.groupby("continent")["total_vaccinations"].sum()
+
+# Affichage du rapport entre les deux variables
+print(vaccinated_by_cont / total_vaccinated)
+
+# Affichage du nombre de personnes vaccinées par continent avec pivot_table()
+print(pd.pivot_table(vaccin, index="continent", values="total_vaccinations", aggfunc=np.sum))
+
+
+# Calcul du nombre de valeurs manquantes
+Ndata = vaccin.shape[0]
+nodata = vaccin["total_vaccinations"].isna().sum()
+
+# Affichage du pourcentage de valeurs manquantes
+print(f"{(nodata / Ndata) * 100}% des pays recensés ont des données incomplètes")
+
+# Création d'un dataframe contenant toutes les lignes complètes
+vaccin_complete = vaccin.dropna()
+vaccin_complete.to_csv("covid_vaccination_complete.csv")
+
+
+# Création du dataframe results
+results = pd.DataFrame({
+    "Name": ["Alice", "Romain", "June", "Baptiste", "Laure"],
+    "Test 1": [8, 12, 17, 10, 15],
+    "Test 2": [12, 14, 14, 8, 16]
+}).set_index("Name")
+
+# Affichage du dataframe
+print(results)
+
+
+
+
+import matplotlib.pyplot as plt
+import pandas as pd
+
+# Chargement des données
+emissions = pd.read_csv('emissions_co2.csv', index_col=0)
+
+# Extraction des données pour les années 1970 et 2010
+emissions_1970 = emissions.loc[:, '1970']
+emissions_2010 = emissions.loc[:, '2010']
+
+# Création de la figure
+plt.hist([emissions_1970, emissions_2010], bins=20, alpha=0.7, label=['1970', '2010'])
+plt.legend()
+plt.xlabel('Emissions de CO2 (en tonnes par habitant)')
+plt.ylabel('Fréquence')
+plt.title("Histogramme des émissions de CO2 par habitant en 1970 et en 2010")
+plt.show()
+
 
 
 
